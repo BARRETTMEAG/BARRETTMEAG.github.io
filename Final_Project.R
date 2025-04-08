@@ -5,7 +5,8 @@ library(leaflet)
 library(dplyr)
 library(ggplot2)
 
-gator <- read.csv("Assignments/Assignment_4/fatal_alligator_attacks_US.csv")
+
+gator <- read.csv("fatal_alligator_attacks_US.csv")
 View(gator)
 
 names(gator)
@@ -43,14 +44,18 @@ deaths %>%
        x = "State", y = "Number of Victims", fill = "Sex")
 
 
-g_wolves <- read.csv("Assignments/Assignment_4/global_wolves.csv")
+g_wolves <- read.csv("global_wolves.csv")
+g_wolves <-clean_names(g_wolves)
 View(g_wolves)
 
+g_wolves$type_of_attack[is.na(g_wolves$type_of_attack) | g_wolves$type_of_attack == ""] <- "Unknown"
+
 g_wolves %>% 
-  group_by(Type.of.attack) %>% 
-  ggplot(aes(x = Type.of.attack)) +
+  group_by(type_of_attack) %>% 
+  ggplot(aes(x = type_of_attack)) +
   geom_bar()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Types of Attacks")
 
 shark_2 <- read.csv("Assignments/Assignment_4/shark_attacks.csv")
 View(shark_2)
