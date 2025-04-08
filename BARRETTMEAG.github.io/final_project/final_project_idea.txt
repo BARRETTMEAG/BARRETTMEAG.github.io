@@ -1,0 +1,19 @@
+Who is the King of Attacks? Shark, Alligator, or Wolves
+
+Final Project Idea: Examine predatory attacks of sharks, alligators, and wolves data. 
+Create graphs that show where the attacks were located and explore if there is an age group most affected. 
+
+1. Download csv files from kaggle.com will be used for graphing the data along with additional research.
+First, download the data from kagglehub:(shark attacks) attacks.csv, list_coor_australia.csv, 
+fatal_alligator_attacks_US.csv, shark_attacks.csv (another shark attack file), and gloal_wolves.csv.
+If more information is needed, download other information. 
+
+2. Examine Shark Attack(s), Fatal Gator Attack, and Global Wolf Attack files.
+Compare the locations, months, and age ranges. 
+
+3. Create graphs that show the different years and location of Attacks to 
+determine the "king" of attacking and if the attacks were provoked or not. 
+Also, examine if there is a certain month that has more attacks. 
+
+
+
