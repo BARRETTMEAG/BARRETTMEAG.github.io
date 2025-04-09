@@ -39,7 +39,8 @@ deaths <-gator %>%
 deaths %>% 
   ggplot(aes(x = location, y = n, fill = sex)) +
   geom_bar(stat = "identity", position = "dodge") +  
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  
+  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.5) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   labs(title = "Alligator Attacks by State",
        x = "State", y = "Number of Victims", fill = "Sex")
 
@@ -52,32 +53,54 @@ g_wolves$type_of_attack[is.na(g_wolves$type_of_attack) | g_wolves$type_of_attack
 
 g_wolves %>% 
   group_by(type_of_attack) %>% 
-  ggplot(aes(x = type_of_attack)) +
-  geom_bar()+
+  ggplot(aes(x = type_of_attack))  +
+  geom_bar(aes(y = ..count..)) + 
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(x = "Types of Attacks")
+  labs(x = "Types of Attacks", y = "Victim Count")
 
-shark_2 <- read.csv("Assignments/Assignment_4/shark_attacks.csv")
+shark_1 <- read.csv("Shark_attacks/attacks.csv")
+View(shark_1)
+
+shark_1 <- clean_names(shark_1)
+
+shark_1$type[is.na(shark_1$type) | shark_1$type == "Invalid"] <- "Unknown"
+shark_1_subset <- shark_1[1:6302, ]
+
+shark_1 %>% 
+  group_by(country) %>% 
+  ggplot(aes(x = type)) +
+  geom_bar()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+shark_2 <- read.csv("shark_attacks.csv")
 View(shark_2)
+shark_2 <-clean_names(shark_2)
+
+shark_2$type[is.na(shark_2$type) | shark_2$type == "Invalid"] <- "Unknown"
 
 shark_2 %>% 
-  group_by(Area) %>% 
-  ggplot(aes(x = Type)) +
+  group_by(area) %>% 
+  ggplot(aes(x = type)) +
   geom_bar() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-shark_1 <- read.csv("Assignments/Assignment_4/Sharks/attacks.csv")
-View(shark_1)
+shark_3 <- read.csv("Shark_attacks/list_coor_australia.csv")
+str(shark_3)
+View(shark_3)
 
-shark_1 %>% 
-  group_by(Country) %>% 
-  ggplot(aes(x = Type)) +
-  geom_bar()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+colnames(shark_3) <- c("latitude", "longitude")
 
-#shark_1.5 <- read.csv("Assignments/Assignment_4/Sharks/list_coor_australia.csv")
-#View(shark_1.5)
+center_lat <- -25.2744
+center_lon <- 133.7751
+zoom_level <- 5  
 
-leaflet() %>% 
-  addTiles() %>% 
-  addMarkers(lng = -9.14, lat = 38.7) #use for Australia coords
+map <- leaflet() %>%
+  addTiles() %>%  
+  setView(center_lon, center_lat, zoom = zoom_level)
+
+for (i in 1:nrow(shark_3)) {
+  map <- map %>% addMarkers(lng = shark_3$longitude[i], lat = shark_3$latitude[i])
+}
+
+map
