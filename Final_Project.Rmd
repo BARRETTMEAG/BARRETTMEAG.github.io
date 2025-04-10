@@ -62,7 +62,7 @@ shark_3 <- read.csv("Shark_attacks/list_coor_australia.csv")
 ```
 This data set was retrieved from Kaggle and has already been **somewhat** cleaned for analysis. However, there are some changes I wanted to make to the data structure, changing missing values/empty spaces, cleaning the names, and improving characters found throughout the data set. The following code and outputs demonstrate the changes I've made to allow for smoother data analysis: 
 
-```{r echo=TRUE}
+```{r, echo=TRUE}
 
 # shows the original data structure 
 str(gator)
@@ -73,12 +73,6 @@ str(shark_2)
 
 str(shark_3)
 
-
-# converts all N/A chr values to actual missing values and fills in empty spaces with missing values 
-
-g_wolves$type_of_attack[is.na(g_wolves$type_of_attack) | g_wolves$type_of_attack == ""] <- "Unknown"
-
-
 # convert column titles to snake_case 
 
 gator <-clean_names(gator)
@@ -87,14 +81,57 @@ g_wolves <-clean_names(g_wolves)
 
 shark_2 <-clean_names(shark_2)
 
+# converts all N/A chr values to actual missing values and fills in empty spaces with missing values 
+
+g_wolves$type_of_attack[is.na(g_wolves$type_of_attack) | g_wolves$type_of_attack == ""] <- "Unknown"
+
+shark_1$type[is.na(shark_1$type) | shark_1$type == "Invalid"] <- "Unknown"
+shark_1_subset <- shark_1[1:6302, ]
+
+shark_2$type[is.na(shark_2$type) | shark_2$type == "Invalid"] <- "Unknown"
+
+
+# converts data structure to more appropriate data types
+
+gator <-gator %>% 
+  mutate(location = str_extract(details, "(Miami|Florida|Georgia|Texas|Louisiana|South Carolina)"),
+         location = ifelse(location == "Miami", "Florida", location))
+
+colnames(shark_3) <- c("latitude", "longitude")
+
 ```
+```{r, echo = FALSE}
+# Alligator
 
-## Including Plots
+gator %>%
+  mutate(date = as.Date(date, format = "%B %d, %Y")) %>%  
+  filter(age != "?") %>%
+  mutate(age = as.numeric(age)) %>%
+  filter(age >= 2 & age <= 81) %>%
+  mutate(year = as.integer(format(date, "%Y"))) %>%  
+  arrange(age) %>%
+  group_by(location) %>%
+  ggplot(aes(x = factor(year), y = age, color = location)) + 
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "Year", y = "Age")
 
-You can also embed plots, for example:
+deaths <-gator %>%
+  filter(location != "?") %>%  
+  filter(sex != "?") %>%       
+  group_by(location, sex) %>%
+  tally()
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+print(deaths)
+
+
+
+deaths %>% 
+  ggplot(aes(x = location, y = n, fill = sex)) +
+  geom_bar(stat = "identity", position = "dodge") +  
+  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.5) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  labs(title = "Alligator Attacks by State",
+       x = "State", y = "Number of Victims", fill = "Sex")
+
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
