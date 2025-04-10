@@ -27,13 +27,13 @@ In the following report, I will investigate and examine which animal is the king
 
 # **Background**
 This project was inspired in part by my family, my mother is from Florida and there have been some very interesting documentaries done on all these animals. It was also inspired by general happen stance: I found a very nice data set on Kaggle and felt it could be an interesting take on a seemingly dull data set. As mentioned, this data set was found 
-[here](https://www.kaggle.com/datasets/danela/fatal-alligator-attacks-us?resource=download&select=fatal_alligator_attacks_US.csv), as updated 2 years ago (2023),
+[link](https://www.kaggle.com/datasets/danela/fatal-alligator-attacks-us?resource=download&select=fatal_alligator_attacks_US.csv), as updated 2 years ago (2023),
 
-[here](https://www.kaggle.com/datasets/felipeesc/shark-attack-dataset?phase=FinishSSORegistration&returnUrl=%2Fdatasets%2Ffelipeesc%2Fshark-attack-dataset%2Fversions%2F1%3Fresource%3Ddownload&SSORegistrationToken=CfDJ8PHSCL9k9s1HuJ2cRFBFhuhgpxN0g_ATDITz_-cXVG-n5-S8PcAnZdgDXHbn7ud0iaVYLeYWkYnFTY6Nc4JFt1nyWAZsTuhR8vSPv3ok5TP4AtRRK9-IzGDqSzZKUGxMayKK5NKkdWgewUVYPMF1aJl4phPB4ObwXl2AK7698CE230yss9kgbAVKcZACBg00FmSPPkTsYGhlWu4z3VrezvZDXoLn2eYayI0784JDAnaa1L5KVsvpzolGTk9T8hn7uDtX29rwNRaQWy19BsV0KZ7TcfDfFpYvRD8rSMrq4yEul7-CRa2L1R5qWvxEOYMlGI-VFN87sgabOPrg_CJ6jcJaVo0CcsQ&DisplayName=Meaghan+Barrett),as updated 4 years ago (2021),
+[link](https://www.kaggle.com/datasets/felipeesc/shark-attack-dataset?phase=FinishSSORegistration&returnUrl=%2Fdatasets%2Ffelipeesc%2Fshark-attack-dataset%2Fversions%2F1%3Fresource%3Ddownload&SSORegistrationToken=CfDJ8PHSCL9k9s1HuJ2cRFBFhuhgpxN0g_ATDITz_-cXVG-n5-S8PcAnZdgDXHbn7ud0iaVYLeYWkYnFTY6Nc4JFt1nyWAZsTuhR8vSPv3ok5TP4AtRRK9-IzGDqSzZKUGxMayKK5NKkdWgewUVYPMF1aJl4phPB4ObwXl2AK7698CE230yss9kgbAVKcZACBg00FmSPPkTsYGhlWu4z3VrezvZDXoLn2eYayI0784JDAnaa1L5KVsvpzolGTk9T8hn7uDtX29rwNRaQWy19BsV0KZ7TcfDfFpYvRD8rSMrq4yEul7-CRa2L1R5qWvxEOYMlGI-VFN87sgabOPrg_CJ6jcJaVo0CcsQ&DisplayName=Meaghan+Barrett),as updated 4 years ago (2021),
 
-[here](https://www.kaggle.com/code/icecream4/shark-attacks-by-hemispheres/notebook), as updated 8 years ago (2017),
+[link](https://www.kaggle.com/code/icecream4/shark-attacks-by-hemispheres/notebook), as updated 8 years ago (2017),
 
-[here](https://www.kaggle.com/datasets/danela/global-wolf-attacks?select=global_wolves.csv), as updated 2 years ago (2023)
+[link](https://www.kaggle.com/datasets/danela/global-wolf-attacks?select=global_wolves.csv), as updated 2 years ago (2023)
 
 The data set consists of various reported statistics regarding these different attacks. Most individuals were attacked were predatory. However, some individuals were reported to provoke the animal. Different age groups were attacked each time. 
 
@@ -62,7 +62,7 @@ shark_3 <- read.csv("Shark_attacks/list_coor_australia.csv")
 ```
 This data set was retrieved from Kaggle and has already been **somewhat** cleaned for analysis. However, there are some changes I wanted to make to the data structure, changing missing values/empty spaces, cleaning the names, and improving characters found throughout the data set. The following code and outputs demonstrate the changes I've made to allow for smoother data analysis: 
 
-```{r}
+```{r echo=TRUE}
 
 # shows the original data structure 
 str(gator)
@@ -87,18 +87,6 @@ g_wolves <-clean_names(g_wolves)
 
 shark_2 <-clean_names(shark_2)
 
-
-
-
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
 ```
 
 ## Including Plots
