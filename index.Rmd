@@ -7,11 +7,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## [ABOUT ME & RESEARCH](./about_me/about_me.html) | [CV](./about_me/) | [BIOL 3100 - Final Project](./final_project/final_project.html)##
+## [ABOUT ME & RESEARCH](./about_me/about_me.html) | [CV](./about_me/) | [BIOL 3100 - Final Project](./Final_Project.html)##
 
 # Meaghan Barrett: Bioinformatician and Future Scientist #
 Utah born Southern-hearted gal; loving science and living life the best I can.
-
 
 Welcome to my website! Feel free to explore my previous/current research, resume, and my final project for BIOL 3100 (Data Analysis for Biologists). 
 

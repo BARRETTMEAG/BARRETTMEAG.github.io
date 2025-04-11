@@ -23,55 +23,49 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE, warning = FALSE, message = FALS
 [Return to Homepage](../index.html)
 
 # **Introduction**
-In the following report, I will investigate and examine which animal is the king of attacks, by comparing the attacks from sharks, wolves, and alligators. While this data has already been cleaned and contains fairly simple information, this final project aims to investigate the disparities between these three animals, the attack locations, and the effected population. In simpler terms, who is responsible for the most attacks? Which populations are the most effected? Where these attacks provoked or not? These are just some of the questions I hope to explore in this writing. 
+In the following report, I will investigate and examine which animal is the king of attacks whether on land or in the water, by comparing the attacks from sharks, wolves, and alligators. While this data has already been somewhat cleaned and contains fairly simple information, this final project aims to investigate the disparities between these three animals, the attack locations, and the effected population. In simpler terms, who is responsible for the most attacks? Which populations are the most effected? Where these attacks provoked or not? These are just some of the questions I hope to explore in this writing. 
 
 # **Background**
-This project was inspired in part by my family, my mother is from Florida and there have been some very interesting documentaries done on all these animals. It was also inspired by general happen stance: I found a very nice data set on Kaggle and felt it could be an interesting take on a seemingly dull data set. As mentioned, this data set was found 
-[link](https://www.kaggle.com/datasets/danela/fatal-alligator-attacks-us?resource=download&select=fatal_alligator_attacks_US.csv), as updated 2 years ago (2023),
+This project was inspired in part by my family, my mother is from Florida and there have been some very interesting documentaries done on all these animals. It was also inspired by general happen stance: I found a very nice data set on Kaggle and felt it could be an interesting take on a seemingly dull data set. As mentioned, this data set was found: 
 
-[link](https://www.kaggle.com/datasets/felipeesc/shark-attack-dataset?phase=FinishSSORegistration&returnUrl=%2Fdatasets%2Ffelipeesc%2Fshark-attack-dataset%2Fversions%2F1%3Fresource%3Ddownload&SSORegistrationToken=CfDJ8PHSCL9k9s1HuJ2cRFBFhuhgpxN0g_ATDITz_-cXVG-n5-S8PcAnZdgDXHbn7ud0iaVYLeYWkYnFTY6Nc4JFt1nyWAZsTuhR8vSPv3ok5TP4AtRRK9-IzGDqSzZKUGxMayKK5NKkdWgewUVYPMF1aJl4phPB4ObwXl2AK7698CE230yss9kgbAVKcZACBg00FmSPPkTsYGhlWu4z3VrezvZDXoLn2eYayI0784JDAnaa1L5KVsvpzolGTk9T8hn7uDtX29rwNRaQWy19BsV0KZ7TcfDfFpYvRD8rSMrq4yEul7-CRa2L1R5qWvxEOYMlGI-VFN87sgabOPrg_CJ6jcJaVo0CcsQ&DisplayName=Meaghan+Barrett),as updated 4 years ago (2021),
+[Fatal Alligator Attacks](https://www.kaggle.com/datasets/danela/fatal-alligator-attacks-us?resource=download&select=fatal_alligator_attacks_US.csv)
 
-[link](https://www.kaggle.com/code/icecream4/shark-attacks-by-hemispheres/notebook), as updated 8 years ago (2017),
+[Shark Attacks](https://www.kaggle.com/datasets/felipeesc/shark-attack-dataset?phase=FinishSSORegistration&returnUrl=%2Fdatasets%2Ffelipeesc%2Fshark-attack-dataset%2Fversions%2F1%3Fresource%3Ddownload&SSORegistrationToken=CfDJ8PHSCL9k9s1HuJ2cRFBFhuhgpxN0g_ATDITz_-cXVG-n5-S8PcAnZdgDXHbn7ud0iaVYLeYWkYnFTY6Nc4JFt1nyWAZsTuhR8vSPv3ok5TP4AtRRK9-IzGDqSzZKUGxMayKK5NKkdWgewUVYPMF1aJl4phPB4ObwXl2AK7698CE230yss9kgbAVKcZACBg00FmSPPkTsYGhlWu4z3VrezvZDXoLn2eYayI0784JDAnaa1L5KVsvpzolGTk9T8hn7uDtX29rwNRaQWy19BsV0KZ7TcfDfFpYvRD8rSMrq4yEul7-CRa2L1R5qWvxEOYMlGI-VFN87sgabOPrg_CJ6jcJaVo0CcsQ&DisplayName=Meaghan+Barrett)
 
-[link](https://www.kaggle.com/datasets/danela/global-wolf-attacks?select=global_wolves.csv), as updated 2 years ago (2023)
+[Shark Attacks By Hemispheres](https://www.kaggle.com/code/icecream4/shark-attacks-by-hemispheres/notebook) 
+
+[Global Wolf Attacks](https://www.kaggle.com/datasets/danela/global-wolf-attacks?select=global_wolves.csv) 
 
 The data set consists of various reported statistics regarding these different attacks. Most individuals were attacked were predatory. However, some individuals were reported to provoke the animal. Different age groups were attacked each time. 
 
 Prevention would be great, but there is not signs for those that will and could be attacked. Alligators, sharks, and wolves have different reasons to attack.  
 
 # **Data**
-```{r, echo = FALSE, results = 'hide'}
+```{r, echo = TRUE}
 # load all necessary libraries 
 library(tidyverse)
 library(janitor)
 library(leaflet)
 library(dplyr)
 library(ggplot2)
+library(lubridate)
+library(stringr)
 
 # reading in kaggle data sets 
-gator <- read.csv("fatal_alligator_attacks_US.csv")
+gator <- read.csv("predators/fatal_alligator_attacks_US.csv")
 
-g_wolves <- read.csv("global_wolves.csv")
+g_wolves <- read.csv("predators/global_wolves.csv")
 
-shark_2 <- read.csv("shark_attacks.csv")
+shark_1 <- read.csv("predators/Shark_attacks/attacks.csv")
 
-shark_1 <- read.csv("Shark_attacks/attacks.csv")
+shark_2 <- read.csv("predators/shark_attacks.csv")
 
-shark_3 <- read.csv("Shark_attacks/list_coor_australia.csv")
+shark_3 <- read.csv("predators/Shark_attacks/list_coor_australia.csv")
 
 ```
 This data set was retrieved from Kaggle and has already been **somewhat** cleaned for analysis. However, there are some changes I wanted to make to the data structure, changing missing values/empty spaces, cleaning the names, and improving characters found throughout the data set. The following code and outputs demonstrate the changes I've made to allow for smoother data analysis: 
 
 ```{r, echo=TRUE}
-
-# shows the original data structure 
-str(gator)
-
-str(shark_1)
-
-str(shark_2)
-
-str(shark_3)
 
 # convert column titles to snake_case 
 
@@ -79,30 +73,44 @@ gator <-clean_names(gator)
 
 g_wolves <-clean_names(g_wolves)
 
-shark_2 <-clean_names(shark_2)
+shark_1 <- clean_names(shark_1)
 
+shark_2 <-clean_names(shark_2)
+```
+
+```{r eval = TRUE}
 # converts all N/A chr values to actual missing values and fills in empty spaces with missing values 
 
 g_wolves$type_of_attack[is.na(g_wolves$type_of_attack) | g_wolves$type_of_attack == ""] <- "Unknown"
 
-shark_1$type[is.na(shark_1$type) | shark_1$type == "Invalid"] <- "Unknown"
-shark_1_subset <- shark_1[1:6302, ]
-
 shark_2$type[is.na(shark_2$type) | shark_2$type == "Invalid"] <- "Unknown"
+
+shark_1 <- shark_1[!is.na(shark_1$type), ] 
+shark_1_subset <- shark_1[1:6302, ]
+nrow(shark_1)
+length(shark_1$type)
+
+# Check which rows have NA or invalid values
+table(is.na(shark_1$type))  
+table(shark_1$type == "Invalid")  
+
+# Replace only NAs first, then Invalids
+shark_1$type[is.na(shark_1$type)] <- "Unknown"
+shark_1$type[shark_1$type == "Invalid"] <- "Unknown"
 
 
 # converts data structure to more appropriate data types
-
 gator <-gator %>% 
   mutate(location = str_extract(details, "(Miami|Florida|Georgia|Texas|Louisiana|South Carolina)"),
          location = ifelse(location == "Miami", "Florida", location))
 
-colnames(shark_3) <- c("latitude", "longitude")
-
 ```
-```{r, echo = FALSE}
-# Alligator
 
+# **Alligator**
+
+Alligators are beautiful and dangerous animals. This data only shows a small amount of deaths that have been caused by alligators. There was no information about croc, even though they do have a hand in many deaths over the years, since they invaded the South. This data shows that Florida has had the most number of attacks. I have learned over the years is keep an eye out whenever by water on the Southern coast, you never know what might snap you up. 
+
+```{r, echo = FALSE}
 gator %>%
   mutate(date = as.Date(date, format = "%B %d, %Y")) %>%  
   filter(age != "?") %>%
@@ -115,7 +123,10 @@ gator %>%
   geom_point() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(x = "Year", y = "Age")
+```
 
+
+```{r, echo=FALSE}
 deaths <-gator %>%
   filter(location != "?") %>%  
   filter(sex != "?") %>%       
@@ -124,9 +135,7 @@ deaths <-gator %>%
 
 print(deaths)
 
-
-
-deaths %>% 
+victims_by_state <-deaths %>% 
   ggplot(aes(x = location, y = n, fill = sex)) +
   geom_bar(stat = "identity", position = "dodge") +  
   geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.5) +
@@ -134,4 +143,145 @@ deaths %>%
   labs(title = "Alligator Attacks by State",
        x = "State", y = "Number of Victims", fill = "Sex")
 
+victims_by_state
 ```
+
+# **Unexpected Shark Attacks**
+When I first started trying to create this plot, this was the result. Attacks happening above Greenland. I learned how wrong I was. 
+```{r, out.width="70%", out.height="70%"}
+knitr::include_graphics("media/Unexpected_Attacks.png")
+```
+
+# **Sharks**
+If any of you have a unrealistic fear that there is something in the water and you will get attacked. You're not alone look is happening in Australia. Zoom out and see what is happening.
+
+```{r, echo = TRUE}
+
+colnames(shark_3) <- c("latitude", "longitude")
+center_lat <- -25.2744
+center_lon <- 133.7751
+zoom_level <- 5  
+
+map <- leaflet() %>%
+  addTiles() %>%  
+  setView(center_lon, center_lat, zoom = zoom_level)
+
+for (i in 1:nrow(shark_3)) {
+  map <- map %>% addMarkers(lng = shark_3$longitude[i], lat = shark_3$latitude[i])
+}
+
+map
+
+```
+
+
+```{r, out.width="70%", out.height="70%"}
+knitr::include_graphics("media/Australia.png")
+```
+
+
+This is what the map looks like when zoomed out. Crazy, right?
+
+
+#  **More Attacks**
+```{r, echo=TRUE}
+
+shark_1$type[is.na(shark_1$type) | shark_1$type == ""] <- "Unknown"
+shark_1$type[is.na(shark_1$type) | shark_1$type == "Invalid"] <- "Unknown"
+shark_1_subset <- shark_1[1:6302, ]
+
+sharks <-shark_1 %>% 
+  group_by(country) %>% 
+  ggplot(aes(x = type)) +
+   geom_bar(aes(y = ..count..)) + 
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot(sharks)
+```
+
+
+Does anyone have an idea what boatomg is? I think they meant boating, but messed up on their English. It is understandable to a degree, English is hard. 
+
+
+# **More Shark Attacks**
+```{r, echo = TRUE}
+
+shark_2$type[is.na(shark_2$type) | shark_2$type == "Invalid"] <- "Unknown"
+
+shark_2 %>% 
+  group_by(area) %>% 
+  ggplot(aes(x = type)) +
+   geom_bar(aes(y = ..count..)) + 
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+#  **Wolves**
+
+```{r, echo=TRUE}
+g_wolves$type_of_attack[is.na(g_wolves$type_of_attack) | g_wolves$type_of_attack == ""] <- "Unknown"
+
+wolves <- g_wolves %>% 
+  group_by(type_of_attack) %>% 
+  ggplot(aes(x = type_of_attack))  +
+  geom_bar(aes(y = ..count..)) + 
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Types of Attacks", y = "Victim Count")
+
+wolves
+```
+
+# **More Wolves** 
+When I was looking and trying to clean the data, there were many factors that was affecting it. The data was not pretty even after trying to clean it. They are even higher than data above, there was some data that represented 15 people that were killed by wolves, all 15 people were placed on the same line. 
+
+```{r, echo=TRUE}
+# Read the CSV file (assuming it's saved as 'global_wolves.csv')
+data <- read.csv("predators/global_wolves.csv", stringsAsFactors = FALSE)
+
+data <- clean_names(data)
+
+# Use a regular expression to extract the country from the 'Location' column
+data$country <- sub(".*,\\s*(.*)$", "\\1", data$location)
+
+# Extract the country from location string
+data$country <- str_extract(data$location, "[^,]+$")
+
+# Trim any leading/trailing whitespace
+data$country <- trimws(data$country)
+
+# Replace blank box with NA
+data <- data %>%
+  mutate(type_of_attack = ifelse(type_of_attack == "", NA, type_of_attack))
+
+w_attacks <-data %>% 
+  ggplot(aes(x = country, fill = type_of_attack)) +
+  geom_bar(position = "dodge") +
+  coord_flip() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  
+  labs(title = "Attacks and Country",
+       x = "Country",
+       y = "Count of Attacks") +
+  theme_minimal()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.y = element_text(size = 8))  
+```
+
+```{r, out.width="70%", out.height="70%"}
+knitr::include_graphics("media/wolves_attacks.png")
+```
+
+# **King**
+
+The King of attacks is the shark. The data shows that sharks have attacked, look at the map of Australia again, every marker is where a shark attack has occurred. Also another reason why the shark data is king is due to a lack and missing data from both the wolves and gators. If there was data for Nile Crocs, there might be some competition. 
+
+
+```{r, out.width="70%", out.height="70%"}
+knitr::include_graphics("media/shark.png")
+```
+
+
