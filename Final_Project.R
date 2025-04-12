@@ -8,6 +8,7 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 library(stringr)
+library(tibble)
 
 
 # GATORS ####
@@ -120,6 +121,133 @@ data %>%
     axis.text.y = element_text(size = 8))  
 
 
+### Attempt 2
+# Load the CSV
+df <- read_csv("predators/global_wolves.csv") %>% 
+  clean_names()
+
+# Function to split or duplicate victims
+expand_victims <- function(victim_string, row_data) {
+  row_data <- as_tibble(row_data)  
+  
+  # Insert separator where gender is jammed with next name, like "maleAlex"
+  victim_string <- str_replace_all(victim_string, "(male|female)(?=[A-Z])", "\\1; ")
+  
+  # Case 1: multiple named people
+  if (str_detect(victim_string, "[A-Za-z]+, \\d{1,2}, (male|female)")) {
+    people <- str_extract_all(victim_string, "[^,]+, \\d{1,2}, (male|female)")[[1]]
+    return(map_df(people, ~ mutate(row_data, victims = .x)))
+  }
+  
+  # Case 2: vague with number
+  number_match <- str_match(victim_string, "(\\d+)|([Tt]wo|[Tt]hree|[Ff]our|[Ff]ive|[Ss]ix|[Ss]even|[Ee]ight)")
+  if (!is.na(number_match[1])) {
+    num <- suppressWarnings(as.numeric(number_match[1]))
+    if (is.na(num)) {
+      num <- case_when(
+        str_detect(number_match[1], regex("two", ignore_case = TRUE)) ~ 2,
+        str_detect(number_match[1], regex("three", ignore_case = TRUE)) ~ 3,
+        str_detect(number_match[1], regex("four", ignore_case = TRUE)) ~ 4,
+        str_detect(number_match[1], regex("five", ignore_case = TRUE)) ~ 5,
+        str_detect(number_match[1], regex("six", ignore_case = TRUE)) ~ 6,
+        str_detect(number_match[1], regex("seven", ignore_case = TRUE)) ~ 7,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 8,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 9,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 10,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 11,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 12,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 13,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 14,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 15,
+        TRUE ~ 1
+      )
+    }
+    return(map_df(1:num, ~ mutate(row_data, victims = "Unknown")))
+  }
+  
+  # Default: return original row
+  return(row_data)
+}
+
+# Apply to each row
+cleaned_df <- df %>%
+  rowwise() %>%
+  do(expand_victims(.$victims, .)) %>%
+  ungroup()
+
+cleaned_df <-cleaned_df <- cleaned_df %>%
+  mutate(
+    country = str_remove(country, "\\.$")  
+  )
+
+cleaned_df <- cleaned_df %>%
+  mutate(country = str_extract(location, "[^,]+$") %>% str_trim())
+
+
+View(cleaned_df)
+
+cleaned_df %>% 
+  ggplot(aes(x = country, fill = type_of_attack)) +
+  geom_bar(position = "dodge") +
+  coord_flip() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  
+  labs(title = "Attacks and Country",
+       x = "Country",
+       y = "Count of Attacks") +
+  theme_minimal()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.y = element_text(size = 8))  
+
+
+# Attempt 3 at cleaning wolf data
+# Load and clean the CSV
+df <- read_csv("predators/global_wolves.csv") %>%
+  clean_names()
+
+# Function to expand and clean victim entries
+expand_victims <- function(victim_string, row_data) {
+  row_data <- as_tibble(row_data)
+  victim_string <- str_trim(victim_string)
+  
+  # Fix gender attached to names like "maleAlex"
+  victim_string <- str_replace_all(victim_string, "(male|female)(?=[A-Z])", "\\1, ")
+  
+  # Replace "and" with commas for consistency
+  victim_string <- str_replace_all(victim_string, "\\band\\b", ",")
+  
+  # Normalize separators
+  victim_string <- str_replace_all(victim_string, ";", ",")
+  victim_string <- str_replace_all(victim_string, "\\s*,\\s*", ", ")
+  victim_string <- str_squish(victim_string)
+  
+  # Extract complete victim phrases: "Name, age gender"
+  people <- str_extract_all(
+    victim_string,
+    "(?:[A-Z][a-z'\\-]+\\s*){1,3},?\\s*(?:adult|child)?\\s*(male|female)?"
+  )[[1]] %>% str_trim()
+  
+  # Filter out empty results
+  people <- people[people != ""]
+  
+  # Return a row for each victim
+  map_df(people, function(person) {
+    mutate(row_data, victims = person)
+  })
+}
+
+# Apply function row-by-row
+cleaned_df <- df %>%
+  rowwise() %>%
+  do(expand_victims(.$victims, .)) %>%
+  ungroup()
+
+# Export cleaned data
+#write_csv(cleaned_df, "cleaned_global_wolves.csv")
+
+View(cleaned_df)
+
+
 # SHARKS ####
 # Shark 1####
 shark_1 <- read.csv("predators/Shark_attacks/attacks.csv")
@@ -177,4 +305,5 @@ for (i in 1:nrow(shark_3)) {
 }
 
 map
+
 

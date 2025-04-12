@@ -235,8 +235,8 @@ wolves <- g_wolves %>%
 wolves
 ```
 
-# **More Wolves** 
-When I was looking and trying to clean the data, there were many factors that was affecting it. The data was not pretty even after trying to clean it. They are even higher than data above, there was some data that represented 15 people that were killed by wolves, all 15 people were placed on the same line. 
+# **Before Cleaning Wolves Data** 
+When I was looking and trying to clean the data, there were many factors that was affecting it. The data was not pretty even after trying to clean it. They are even higher than data above, there was some data that represented 15 people that were killed by wolves, all 15 people were placed on the same line. This is how it looked before really cleaning the data. 
 
 ```{r, echo=TRUE}
 # Read the CSV file (assuming it's saved as 'global_wolves.csv')
@@ -257,7 +257,7 @@ data$country <- trimws(data$country)
 data <- data %>%
   mutate(type_of_attack = ifelse(type_of_attack == "", NA, type_of_attack))
 
-w_attacks <-data %>% 
+data %>% 
   ggplot(aes(x = country, fill = type_of_attack)) +
   geom_bar(position = "dodge") +
   coord_flip() + 
@@ -274,6 +274,93 @@ w_attacks <-data %>%
 ```{r, out.width="70%", out.height="70%"}
 knitr::include_graphics("media/wolves_attacks.png")
 ```
+
+# **Cleaned Data**
+```{r, echo=TRUE}
+### Attempt 2
+# Load the CSV
+df <- read_csv("predators/global_wolves.csv") %>% 
+  clean_names()
+
+# Function to split or duplicate victims
+expand_victims <- function(victim_string, row_data) {
+  row_data <- as_tibble(row_data)  
+  
+  # Insert separator where gender is jammed with next name, like "maleAlex"
+  victim_string <- str_replace_all(victim_string, "(male|female)(?=[A-Z])", "\\1; ")
+  
+  # Case 1: multiple named people
+  if (str_detect(victim_string, "[A-Za-z]+, \\d{1,2}, (male|female)")) {
+    people <- str_extract_all(victim_string, "[^,]+, \\d{1,2}, (male|female)")[[1]]
+    return(map_df(people, ~ mutate(row_data, victims = .x)))
+  }
+  
+  # Case 2: vague with number
+  number_match <- str_match(victim_string, "(\\d+)|([Tt]wo|[Tt]hree|[Ff]our|[Ff]ive|[Ss]ix|[Ss]even|[Ee]ight)")
+  if (!is.na(number_match[1])) {
+    num <- suppressWarnings(as.numeric(number_match[1]))
+    if (is.na(num)) {
+      num <- case_when(
+        str_detect(number_match[1], regex("two", ignore_case = TRUE)) ~ 2,
+        str_detect(number_match[1], regex("three", ignore_case = TRUE)) ~ 3,
+        str_detect(number_match[1], regex("four", ignore_case = TRUE)) ~ 4,
+        str_detect(number_match[1], regex("five", ignore_case = TRUE)) ~ 5,
+        str_detect(number_match[1], regex("six", ignore_case = TRUE)) ~ 6,
+        str_detect(number_match[1], regex("seven", ignore_case = TRUE)) ~ 7,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 8,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 9,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 10,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 11,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 12,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 13,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 14,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 15,
+        TRUE ~ 1
+      )
+    }
+    return(map_df(1:num, ~ mutate(row_data, victims = "Unknown")))
+  }
+  
+  # Default: return original row
+  return(row_data)
+}
+
+# Apply to each row
+cleaned_df <- df %>%
+  rowwise() %>%
+  do(expand_victims(.$victims, .)) %>%
+  ungroup()
+
+# First extract the country
+cleaned_df <- cleaned_df %>%
+  mutate(country = str_extract(location, "[^,]+$") %>% str_trim())
+
+# Then remove any trailing periods
+cleaned_df <- cleaned_df %>%
+  mutate(country = str_remove(country, "\\.$"))
+
+cleaned_df %>% 
+  ggplot(aes(x = country, fill = type_of_attack)) +
+  geom_bar(position = "dodge") +
+  coord_flip() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  
+  labs(title = "Attacks and Country",
+       x = "Country",
+       y = "Count of Attacks") +
+  theme_minimal()+
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.y = element_text(size = 8))  
+```
+
+```{r, out.width="70%", out.height="70%"}
+knitr::include_graphics("media/Second_Attempt.png")
+```
+
+
+
+After cleaning the data, you can see, Russia and Frances have many attacks.
+
 
 # **King**
 
