@@ -219,7 +219,7 @@ shark_2 %>%
 ```
 
 
-#  **Wolves**
+#  **Wolves: Before Cleaning**
 
 ```{r, echo=TRUE}
 g_wolves$type_of_attack[is.na(g_wolves$type_of_attack) | g_wolves$type_of_attack == ""] <- "Unknown"
@@ -235,7 +235,7 @@ wolves <- g_wolves %>%
 wolves
 ```
 
-# **Before Cleaning Wolves Data** 
+# **Wolves** 
 When I was looking and trying to clean the data, there were many factors that was affecting it. The data was not pretty even after trying to clean it. They are even higher than data above, there was some data that represented 15 people that were killed by wolves, all 15 people were placed on the same line. This is how it looked before really cleaning the data. 
 
 ```{r, echo=TRUE}
@@ -275,7 +275,7 @@ data %>%
 knitr::include_graphics("media/wolves_attacks.png")
 ```
 
-# **Cleaned Data**
+# **Cleaned Wolves Data**
 ```{r, echo=TRUE}
 ### Attempt 2
 # Load the CSV
