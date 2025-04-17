@@ -9,6 +9,8 @@ library(ggplot2)
 library(lubridate)
 library(stringr)
 library(tibble)
+library(readr)
+library(forcats)
 
 
 # GATORS ####
@@ -248,6 +250,107 @@ cleaned_df <- df %>%
 View(cleaned_df)
 
 
+# Cleaner Wolves Data ####
+# Load and clean the dataset
+df <- read_csv("predators/global_wolves.csv") %>% 
+  clean_names()
+
+# Function to expand victims and extract age & sex
+expand_victims <- function(victim_string, row_data) {
+  row_data <- as_tibble(row_data)  
+  
+  victim_string <- str_replace_all(victim_string, "(male|female)(?=[A-Z])", "\\1; ")
+  
+  if (str_detect(victim_string, "[A-Za-z]+,? ?\\d{1,2}, (male|female)")) {
+    people <- str_extract_all(victim_string, "[^,;]+,? ?\\d{1,2}, (male|female)")[[1]]
+    
+    return(map_df(people, function(person) {
+      age <- str_extract(person, "\\d{1,2}") %>% as.numeric()
+      sex <- str_extract(person, "male|female")
+      mutate(row_data, victims = person, age = age, sex = sex)
+    }))
+  }
+  
+  number_match <- str_match(victim_string, "(\\d+)|([Tt]wo|[Tt]hree|[Ff]our|[Ff]ive|[Ss]ix|[Ss]even|[Ee]ight|[Nn]ine|[Tt]en|[Ee]leven|[Tt]welve|[Tt]hirteen|[Ff]ourteen|[Ff]ifteen)")
+  
+  if (!is.na(number_match[1])) {
+    num <- suppressWarnings(as.numeric(number_match[1]))
+    if (is.na(num)) {
+      num <- case_when(
+        str_detect(number_match[1], regex("two", ignore_case = TRUE)) ~ 2,
+        str_detect(number_match[1], regex("three", ignore_case = TRUE)) ~ 3,
+        str_detect(number_match[1], regex("four", ignore_case = TRUE)) ~ 4,
+        str_detect(number_match[1], regex("five", ignore_case = TRUE)) ~ 5,
+        str_detect(number_match[1], regex("six", ignore_case = TRUE)) ~ 6,
+        str_detect(number_match[1], regex("seven", ignore_case = TRUE)) ~ 7,
+        str_detect(number_match[1], regex("eight", ignore_case = TRUE)) ~ 8,
+        str_detect(number_match[1], regex("nine", ignore_case = TRUE)) ~ 9,
+        str_detect(number_match[1], regex("ten", ignore_case = TRUE)) ~ 10,
+        str_detect(number_match[1], regex("eleven", ignore_case = TRUE)) ~ 11,
+        str_detect(number_match[1], regex("twelve", ignore_case = TRUE)) ~ 12,
+        str_detect(number_match[1], regex("thirteen", ignore_case = TRUE)) ~ 13,
+        str_detect(number_match[1], regex("fourteen", ignore_case = TRUE)) ~ 14,
+        str_detect(number_match[1], regex("fifteen", ignore_case = TRUE)) ~ 15,
+        TRUE ~ 1
+      )
+    }
+    
+    return(map_df(1:num, ~ mutate(row_data, victims = "Unknown", age = NA, sex = NA)))
+  }
+  
+  sex <- str_extract(victim_string, "male|female")
+  age <- str_extract(victim_string, "\\d{1,2}") %>% as.numeric()
+  
+  return(mutate(row_data, victims = victim_string, age = age, sex = sex))
+}
+
+# Expand victims into individual rows
+cleaned_df <- df %>%
+  rowwise() %>%
+  do(expand_victims(.$victims, .)) %>%
+  ungroup()
+
+# Clean country info from 'location' column
+cleaned_df <- cleaned_df %>%
+  mutate(
+    country = str_extract(location, "[^,]+$") %>% str_trim(),
+    country = str_remove(country, "\\.")
+  ) %>%
+  filter(!is.na(country) & country != "")
+
+# Get top 15 countries by number of attacks
+top_countries <- cleaned_df %>%
+  count(country, sort = TRUE) %>%
+  slice_head(n = 15) %>%
+  pull(country)
+
+# Filter to just those countries
+filtered_df <- cleaned_df %>%
+  filter(country %in% top_countries)
+
+filtered_df <- filtered_df %>%
+  filter(!is.na(type_of_attack) & type_of_attack != "")
+
+# Plot
+filtered_df %>%
+  ggplot(aes(x = fct_infreq(country), fill = type_of_attack)) +
+  geom_bar(position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    title = "Top 15 Countries with Wolf Attacks",
+    x = "Country",
+    y = "Number of Attacks",
+    fill = "Attack Type"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.y = element_text(size = 10),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
+  )
+
+
 # SHARKS ####
 # Shark 1####
 shark_1 <- read.csv("predators/Shark_attacks/attacks.csv")
@@ -284,6 +387,13 @@ shark_2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
+top_countries <- shark_2 %>%
+  count(country, sort = TRUE) %>%
+  top_n(15, n) %>%
+  pull(country)
+
+
+filter(!is.na(month)) %>%
 # Shark 3: Australia Coordination####
 shark_3 <- read.csv("predators/Shark_attacks/list_coor_australia.csv")
 str(shark_3)
@@ -307,3 +417,43 @@ for (i in 1:nrow(shark_3)) {
 map
 
 
+# Who is King?
+# 1. Summarize the number of attacks from each cleaned dataset
+
+# Alligator
+gator_attacks <- gator %>%
+  filter(!is.na(date)) %>%
+  nrow()
+
+# Shark - Using shark_1 since it has most rows and was pre-cleaned
+shark_attacks <- shark_1 %>%
+  filter(!is.na(type), type != "Unknown") %>%
+  nrow()
+
+# Wolves - Using cleaned_df from wolf data
+wolf_attacks <- cleaned_df %>%
+  filter(!is.na(type_of_attack), type_of_attack != "") %>%
+  nrow()
+
+# 2. Create a comparison data frame
+attack_king_df <- tibble(
+  predator = c("Shark", "Alligator", "Wolf"),
+  total_attacks = c(shark_attacks, gator_attacks, wolf_attacks)
+)
+
+# 3. Plot it
+attack_king_df %>%
+  ggplot(aes(x = reorder(predator, total_attacks), y = total_attacks, fill = predator)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = total_attacks), vjust = -0.5, size = 4) +
+  labs(
+    title = "The King of Attacks",
+    x = "Predator",
+    y = "Documented Attacks"
+  ) +
+  scale_fill_manual(values = c("Shark" = "#FF3C38", "Alligator" = "#0C9463", "Wolf" = "#4C4C6D")) +
+  theme_minimal(base_size = 16) +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 20),
+    legend.position = "none"
+  )
