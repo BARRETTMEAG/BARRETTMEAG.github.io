@@ -351,6 +351,36 @@ filtered_df %>%
   )
 
 
+# Parse date column and extract month
+filtered_df <- filtered_df %>%
+  mutate(
+    parsed_date = mdy(date),  
+    month = month(parsed_date, label = TRUE, abbr = TRUE)  
+  ) %>%
+  filter(!is.na(month))
+
+# Plot attacks by month
+filtered_df %>%
+  ggplot(aes(x = month, fill = country)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Wolf Attacks by Month",
+    x = "Month",
+    y = "Number of Attacks",
+    fill = "Country"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 18),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
+  )
+
+
 # SHARKS ####
 # Shark 1####
 shark_1 <- read.csv("predators/Shark_attacks/attacks.csv")

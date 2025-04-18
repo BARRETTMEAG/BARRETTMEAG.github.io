@@ -51,6 +51,8 @@ library(ggplot2)
 library(lubridate)
 library(stringr)
 library(readr)
+library(RColorBrewer)
+
 
 # reading in kaggle data sets 
 gator <- read.csv("predators/fatal_alligator_attacks_US.csv")
@@ -252,7 +254,6 @@ Does anyone have an idea what boatomg is? I think they meant boating, but messed
 
 # **More Shark Attacks**
 ```{r, echo = TRUE}
-
 shark_2$type[is.na(shark_2$type) | shark_2$type == "Invalid"] <- "Unknown"
 
 shark_2 %>% 
@@ -264,11 +265,14 @@ shark_2 %>%
     axis.text.x = element_text(angle = 45, hjust = 1, size = 14),  
     axis.text.y = element_text(size = 14),  
     axis.title.x = element_text(size = 16),  
-    axis.title.y = element_text(size = 16)   
+    axis.title.y = element_text(size = 16),
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold")  # Center and style the title
   ) + 
-  labs(title = "Shark Attacks by Type", 
-       x = "Type of Attack", 
-       y = "Count of Attacks")
+  labs(
+    title = "Shark Attacks by Type", 
+    x = "Type of Attack", 
+    y = "Count of Attacks"
+  )
 
 ```
 ```{r, echo=TRUE}
@@ -640,6 +644,42 @@ filtered_df %>%
 
 
 After cleaning the data, you can see, Russia and France both have many attacks.
+
+
+```{r, echo=TRUE}
+# Parse date column and extract month
+filtered_df <- filtered_df %>%
+  mutate(
+    parsed_date = mdy(date), 
+    month = month(parsed_date, label = TRUE, abbr = TRUE)  
+  ) %>%
+  filter(!is.na(month))
+
+# Plot attacks by month with bigger fonts
+filtered_df %>%
+  ggplot(aes(x = month, fill = country)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Wolf Attacks by Month",
+    x = "Month",
+    y = "Number of Attacks",
+    fill = "Country"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 22, face = "bold"),
+    axis.text.x = element_text(size = 14),
+    axis.text.y = element_text(size = 14),
+    axis.title.x = element_text(size = 16, face = "bold"),
+    axis.title.y = element_text(size = 16, face = "bold"),
+    legend.title = element_text(size = 16, face = "bold"),
+    legend.text = element_text(size = 14)
+  )
+
+```
+
+
+This shows the months of attack. Some of the attacks are dated clear back 1340, while others are newer (2022).  
 
 
 # **Who is King?**
