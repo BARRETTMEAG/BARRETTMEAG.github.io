@@ -143,7 +143,7 @@ gator %>%
   ) +
   labs(x = "Year", 
        y = "Age", 
-       title = "Alligator Attacks: Ages vs. Location", 
+       title = "Alligator Attacks: Age vs. Location", 
        color = "Location")
 
 ```
@@ -737,10 +737,10 @@ The King of attacks is the shark. The data shows that sharks have the most attac
 
 
 ```{r, out.width="70%", out.height="70%"}
-knitr::include_graphics("media/shark.png")
+knitr::include_graphics("media/king_jaws.jpeg")
 ```
 
-Picture from [britannica](https://www.britannica.com/animal/shark)
+Picture from [britannica](https://www.britannica.com/animal/shark), crowned by Meaghan Barrett
 
 
 # **Tour Guide Tips**
