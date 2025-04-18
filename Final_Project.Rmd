@@ -141,7 +141,10 @@ gator %>%
     legend.text = element_text(size = 12),
     plot.title = element_text(size = 18, face = "bold")
   ) +
-  labs(x = "Year", y = "Age", title = "Gator Attacks: Ages vs. Location")
+  labs(x = "Year", 
+       y = "Age", 
+       title = "Alligator Attacks: Ages vs. Location", 
+       color = "Location")
 
 ```
 
@@ -160,23 +163,23 @@ victims_by_state <- deaths %>%
   geom_bar(stat = "identity", position = "dodge") +  
   geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.5, size = 3) +
   theme(
-    axis.text.x = element_text(angle = 90, hjust = 1, size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
     axis.text.y = element_text(size = 14),
     axis.title.x = element_text(size = 16),
-    axis.title.y = element_text(size = 16)
+    axis.title.y = element_text(size = 16),
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold")  
   ) + 
   labs(
     title = "Alligator Attacks by State",
     x = "State", y = "Number of Victims", fill = "Sex"
   )
 
-
-
-victims_by_state
+plot(victims_by_state)
 ```
 
 # **Unexpected Shark Attacks**
-When I first started trying to create this plot, this was the result. Attacks happening above Greenland. I learned how wrong I was. 
+When I first started trying to create this plot, this was the result. Attacks happening above Greenland. I learned how wrong I was.
+
 ```{r, out.width="70%", out.height="70%"}
 knitr::include_graphics("media/Unexpected_Attacks.png")
 ```
@@ -195,7 +198,6 @@ Picture from [britannica](https://www.britannica.com/animal/shark)
 If any of you have an unrealistic fear that there is something in the water and you will get attacked, you're not alone. Look what is happening in Australia. Zoom out and see what is happening.
 
 ```{r, echo = TRUE}
-
 colnames(shark_3) <- c("latitude", "longitude")
 center_lat <- -25.2744
 center_lon <- 133.7751
@@ -266,7 +268,7 @@ shark_2 %>%
     axis.text.y = element_text(size = 14),  
     axis.title.x = element_text(size = 16),  
     axis.title.y = element_text(size = 16),
-    plot.title = element_text(hjust = 0.5, size = 18, face = "bold")  # Center and style the title
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold")  
   ) + 
   labs(
     title = "Shark Attacks by Type", 
@@ -276,7 +278,6 @@ shark_2 %>%
 
 ```
 ```{r, echo=TRUE}
-
 top_countries <- shark_2 %>%
   count(country, sort = TRUE) %>%
   top_n(15, n) %>%
@@ -311,7 +312,6 @@ shark_2 %>%
 # **USA**
 
 ```{r, echo=TRUE}
-
 # List of all U.S. states
 us_states <- c(
   "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
